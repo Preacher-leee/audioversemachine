@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoVerse - AI-Powered Vocal Synchronization</title>
+
+    <!-- Load Inter font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    
+    <!-- WaveSurfer.js -->
+    <script src="https://unpkg.com/wavesurfer.js@6.6.4/dist/wavesurfer.js"></script>
+    <script src="https://unpkg.com/wavesurfer.js@6.6.4/dist/plugin/wavesurfer.timeline.js"></script>
+</head>
+<body class="dark-theme">
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header py-3 d-flex justify-content-between align-items-center">
+            <div class="logo d-flex align-items-center">
+                <img src="{{ url_for('static', filename='images/logo.svg') }}" alt="AutoVerse Logo" height="40">
+                <h1 class="ms-3 mb-0">AutoVerse</h1>
+            </div>
+            <div class="d-flex align-items-center">
+                <span class="status-indicator" id="statusIndicator">Ready</span>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="app-main">
+            <div class="row g-0 h-100">
+                <!-- Left Panel - File Management -->
+                <div class="col-md-3 panel file-panel">
+                    <div class="panel-content">
+                        <h2 class="panel-title">Files</h2>
+                        
+                        <!-- Text Input Section -->
+                        <div class="section-container">
+                            <h3 class="section-title">1. Text Input</h3>
+                            <div class="upload-container" id="textUploadContainer">
+                                <div class="upload-area" id="textDropArea">
+                                    <img src="{{ url_for('static', filename='images/upload.svg') }}" alt="Upload" class="upload-icon">
+                                    <p>Drop a text file or click to select</p>
+                                    <input type="file" id="textFileInput" accept=".txt" class="file-input">
+                                </div>
+                                <div class="text-center mt-2">
+                                    <p class="mb-0">or</p>
+                                </div>
+                                <button class="btn btn-secondary btn-sm w-100 mt-2" id="pasteTextBtn">Paste Text</button>
+                            </div>
+                            <div class="text-editor-container d-none" id="textEditorContainer">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <h4 class="editor-title">Text Editor</h4>
+                                    <button class="btn btn-sm btn-primary" id="saveTextBtn">Save</button>
+                                </div>
+                                <textarea id="textEditor" rows="6" class="form-control" placeholder="Enter your lyrics or spoken content here..."></textarea>
+                            </div>
+
+                            <div class="file-info d-none" id="textFileInfo">
+                                <div class="d-flex justify-content-between">
+                                    <span class="file-name" id="textFileName">No file</span>
+                                    <button class="btn btn-sm btn-link p-0" id="editTextBtn">Edit</button>
+                                </div>
+                                <div class="d-flex justify-content-between mt-1">
+                                    <span class="file-meta" id="textWordCount">0 words</span>
+                                    <span class="file-meta" id="textCharCount">0 characters</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Instrumental Upload Section -->
+                        <div class="section-container mt-4">
+                            <h3 class="section-title">2. Upload Instrumental</h3>
+                            <div class="upload-container" id="instrumentalUploadContainer">
+                                <div class="upload-area" id="instrumentalDropArea">
+                                    <img src="{{ url_for('static', filename='images/upload.svg') }}" alt="Upload" class="upload-icon">
+                                    <p>Drop an audio file or click to select</p>
+                                    <input type="file" id="instrumentalFileInput" accept=".mp3,.wav" class="file-input">
+                                </div>
+                            </div>
+
+                            <div class="file-info d-none" id="instrumentalFileInfo">
+                                <div class="d-flex justify-content-between">
+                                    <span class="file-name" id="instrumentalFileName">No file</span>
+                                    <button class="btn btn-sm btn-outline-danger p-0 px-1" id="removeInstrumentalBtn">Remove</button>
+                                </div>
+                                <div class="d-flex justify-content-between mt-1">
+                                    <span class="file-meta" id="instrumentalDuration">0:00</span>
+                                    <span class="file-meta" id="instrumentalBPM">0 BPM</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Voice Selection Section -->
+                        <div class="section-container mt-4">
+                            <h3 class="section-title">3. Voice Settings</h3>
+                            <div class="voice-selector">
+                                <label for="voiceSelect" class="form-label">Select Voice</label>
+                                <select class="form-select" id="voiceSelect">
+                                    <option value="default">Default Voice</option>
+                                    <option value="21m00Tcm4TlvDq8ikWAM">Rachel (Female, Balanced)</option>
+                                    <option value="AZnzlk1XvdvUeBnXmlld">Domi (Female, Dynamic)</option>
+                                    <option value="EXAVITQu4vr4xnSDxMaL">Bella (Female, Soft)</option>
+                                    <option value="VR6AewLTigWG4xSOukaG">Adam (Male, Deep)</option>
+                                    <option value="pNInz6obpgDQGcFmaJgB">Sam (Male, Versatile)</option>
+                                </select>
+
+                                <label for="styleSelect" class="form-label mt-3">Delivery Style</label>
+                                <select class="form-select" id="styleSelect">
+                                    <option value="Spoken Word">Spoken Word</option>
+                                    <option value="Rap">Rap</option>
+                                    <option value="ASMR">ASMR</option>
+                                    <option value="Movie Trailer">Movie Trailer</option>
+                                    <option value="Motivational">Motivational</option>
+                                </select>
+
+                                <button class="btn btn-primary w-100 mt-4" id="generateVocalsBtn" disabled>Generate Vocals</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Center Panel - Waveform & Controls -->
+                <div class="col-md-6 panel waveform-panel">
+                    <div class="panel-content">
+                        <h2 class="panel-title">Waveform &amp; Sync</h2>
+                        
+                        <div class="waveform-container">
+                            <!-- Waveform Images Section -->
+                            <div class="waveforms">
+                                <div class="waveform-wrap">
+                                    <div class="waveform-label">Instrumental</div>
+                                    <div id="waveformInstrumental" class="waveform"></div>
+                                    <div id="timelineInstrumental" class="timeline"></div>
+                                </div>
+                                <div class="waveform-wrap mt-4">
+                                    <div class="waveform-label">Vocals</div>
+                                    <div id="waveformVocals" class="waveform"></div>
+                                </div>
+                                <div class="waveform-wrap mt-4">
+                                    <div class="waveform-label">Final Mix</div>
+                                    <div id="waveformMixed" class="waveform"></div>
+                                </div>
+                            </div>
+
+                            <!-- Playback Controls -->
+                            <div class="playback-controls mt-4">
+                                <div class="d-flex justify-content-center">
+                                    <button class="btn btn-control" id="playInstrumentalBtn" title="Play Instrumental" disabled>
+                                        <i class="fas fa-music"></i>
+                                    </button>
+                                    <button class="btn btn-control" id="playVocalsBtn" title="Play Vocals" disabled>
+                                        <i class="fas fa-microphone"></i>
+                                    </button>
+                                    <button class="btn btn-control" id="playMixedBtn" title="Play Mix" disabled>
+                                        <i class="fas fa-headphones"></i>
+                                    </button>
+                                    <button class="btn btn-control" id="stopBtn" title="Stop">
+                                        <i class="fas fa-stop"></i>
+                                    </button>
+                                </div>
+
+                                <div class="playback-time mt-3 text-center">
+                                    <span id="currentTime">0:00</span> / <span id="totalTime">0:00</span>
+                                </div>
+                            </div>
+
+                            <!-- Sync Controls -->
+                            <div class="sync-controls mt-4">
+                                <h3 class="section-title">Synchronization</h3>
+                                <div class="sync-options">
+                                    <div class="mb-3">
+                                        <label class="form-label">Alignment Mode</label>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="alignmentMode" id="beatAlignment" value="beat" checked>
+                                            <label class="form-check-label" for="beatAlignment">
+                                                Beat Alignment
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="alignmentMode" id="phraseAlignment" value="phrase">
+                                            <label class="form-check-label" for="phraseAlignment">
+                                                Phrase Alignment
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="timeStretchToggle" checked>
+                                            <label class="form-check-label" for="timeStretchToggle">
+                                                Enable Time Stretching
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <button class="btn btn-primary w-100" id="synchronizeBtn" disabled>Synchronize</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Panel - Control Panel -->
+                <div class="col-md-3 panel control-panel">
+                    <div class="panel-content">
+                        <h2 class="panel-title">Mix Controls</h2>
+                        
+                        <!-- Mixing Controls -->
+                        <div class="section-container">
+                            <h3 class="section-title">4. Mixing</h3>
+                            
+                            <!-- Fader Controls -->
+                            <div class="mixer-control mb-4">
+                                <label for="vocalLevelSlider" class="form-label d-flex justify-content-between">
+                                    <span>Vocal Level</span>
+                                    <span id="vocalLevelValue">80%</span>
+                                </label>
+                                <input type="range" class="form-range custom-range" id="vocalLevelSlider" min="0" max="100" value="80">
+                            </div>
+
+                            <!-- EQ Preset -->
+                            <div class="mixer-control mb-4">
+                                <label for="eqPresetSelect" class="form-label">EQ Preset</label>
+                                <select class="form-select" id="eqPresetSelect">
+                                    <option value="balanced">Balanced</option>
+                                    <option value="radio">Radio Ready</option>
+                                    <option value="warm">Warm</option>
+                                    <option value="bright">Bright</option>
+                                </select>
+                            </div>
+
+                            <!-- Compression -->
+                            <div class="mixer-control mb-4">
+                                <label for="compressionSelect" class="form-label">Compression</label>
+                                <select class="form-select" id="compressionSelect">
+                                    <option value="light">Light</option>
+                                    <option value="medium" selected>Medium</option>
+                                    <option value="heavy">Heavy</option>
+                                </select>
+                            </div>
+
+                            <!-- Stereo Width -->
+                            <div class="mixer-control mb-4">
+                                <label for="stereoWidthSlider" class="form-label d-flex justify-content-between">
+                                    <span>Stereo Width</span>
+                                    <span id="stereoWidthValue">100%</span>
+                                </label>
+                                <input type="range" class="form-range custom-range" id="stereoWidthSlider" min="0" max="200" value="100">
+                            </div>
+
+                            <!-- Auto-Ducking -->
+                            <div class="mixer-control mb-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="autoDuckingToggle" checked>
+                                    <label class="form-check-label" for="autoDuckingToggle">
+                                        Auto-Ducking
+                                    </label>
+                                </div>
+                            </div>
+
+                            <button class="btn btn-primary w-100" id="mixAudioBtn" disabled>Mix Audio</button>
+                        </div>
+
+                        <!-- Export Section -->
+                        <div class="section-container mt-4">
+                            <h3 class="section-title">5. Export</h3>
+                            
+                            <div class="export-controls">
+                                <div class="export-format mb-3">
+                                    <label class="form-label">Format</label>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="exportFormat" id="formatMP3" value="mp3" checked>
+                                        <label class="form-check-label" for="formatMP3">
+                                            MP3
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="exportFormat" id="formatWAV" value="wav">
+                                        <label class="form-check-label" for="formatWAV">
+                                            WAV
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <!-- Download Buttons -->
+                                <div class="download-buttons">
+                                    <button class="btn btn-secondary w-100 mb-2" id="downloadVocalsBtn" disabled>
+                                        <i class="fas fa-download me-1"></i> Download Vocals
+                                    </button>
+                                    <button class="btn btn-secondary w-100 mb-2" id="downloadSyncedVocalsBtn" disabled>
+                                        <i class="fas fa-download me-1"></i> Download Synced Vocals
+                                    </button>
+                                    <button class="btn btn-success w-100" id="downloadMixBtn" disabled>
+                                        <i class="fas fa-download me-1"></i> Download Final Mix
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="app-footer py-2">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="footer-text">AutoVerse &copy; 2023 - AI-Powered Vocal Synchronization</div>
+                <div class="version">v1.0</div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Modal for Text Input -->
+    <div class="modal fade" id="textInputModal" tabindex="-1" aria-labelledby="textInputModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="textInputModalLabel">Enter Text</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <textarea id="textInputArea" class="form-control" rows="10" placeholder="Paste or type your lyrics or spoken content here..."></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="confirmTextBtn">Confirm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Modal -->
+    <div class="modal fade" id="loadingModal" tabindex="-1" aria-labelledby="loadingModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body text-center py-4">
+                    <div class="spinner-border text-primary mb-3" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <h5 id="loadingModalLabel">Processing...</h5>
+                    <p id="loadingMessage">Please wait while we process your request.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Text Input Modal -->
+    <div class="modal fade" id="textInputModal" tabindex="-1" aria-labelledby="textInputModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="textInputModalLabel">Enter Text</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <textarea id="textInputArea" class="form-control" rows="10" placeholder="Enter your lyrics or text here..."></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="confirmTextBtn">Confirm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error Modal -->
+    <div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="errorModalLabel">Error</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="errorMessage">An error occurred.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom Scripts -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/audio_processor.js') }}"></script>
+</body>
+</html>
