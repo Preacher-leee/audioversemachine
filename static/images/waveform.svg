@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="200" viewBox="0 0 800 200">
+  <defs>
+    <linearGradient id="waveformGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#6366F1" stop-opacity="0.8" />
+      <stop offset="100%" stop-color="#EC4899" stop-opacity="0.2" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background grid lines -->
+  <g stroke="#1F2937" stroke-width="1" opacity="0.2">
+    <!-- Horizontal grid lines -->
+    <line x1="0" y1="20" x2="800" y2="20" />
+    <line x1="0" y1="60" x2="800" y2="60" />
+    <line x1="0" y1="100" x2="800" y2="100" />
+    <line x1="0" y1="140" x2="800" y2="140" />
+    <line x1="0" y1="180" x2="800" y2="180" />
+    
+    <!-- Vertical grid lines -->
+    <line x1="50" y1="0" x2="50" y2="200" />
+    <line x1="150" y1="0" x2="150" y2="200" />
+    <line x1="250" y1="0" x2="250" y2="200" />
+    <line x1="350" y1="0" x2="350" y2="200" />
+    <line x1="450" y1="0" x2="450" y2="200" />
+    <line x1="550" y1="0" x2="550" y2="200" />
+    <line x1="650" y1="0" x2="650" y2="200" />
+    <line x1="750" y1="0" x2="750" y2="200" />
+  </g>
+  
+  <!-- Waveform path -->
+  <path d="M0,100 
+    C10,80 20,60 30,65 
+    C40,70 50,90 60,100 
+    C70,110 80,115 90,110 
+    C100,105 110,90 120,80 
+    C130,70 140,65 150,70 
+    C160,75 170,90 180,100 
+    C190,110 200,115 210,110 
+    C220,105 230,80 240,60 
+    C250,40 260,30 270,40 
+    C280,50 290,80 300,100 
+    C310,120 320,130 330,125 
+    C340,120 350,100 360,85 
+    C370,70 380,65 390,75 
+    C400,85 410,110 420,120 
+    C430,130 440,125 450,110 
+    C460,95 470,75 480,65 
+    C490,55 500,55 510,65 
+    C520,75 530,95 540,105 
+    C550,115 560,110 570,95 
+    C580,80 590,60 600,50 
+    C610,40 620,45 630,60 
+    C640,75 650,100 660,110 
+    C670,120 680,115 690,100 
+    C700,85 710,65 720,55 
+    C730,45 740,50 750,65 
+    C760,80 770,105 780,115 
+    C790,125 800,115 800,100" 
+    fill="none" stroke="url(#waveformGradient)" stroke-width="3" />
+  
+  <!-- Beat markers -->
+  <g fill="#10B981" opacity="0.7">
+    <circle cx="50" cy="100" r="4" />
+    <circle cx="150" cy="100" r="4" />
+    <circle cx="250" cy="100" r="4" />
+    <circle cx="350" cy="100" r="4" />
+    <circle cx="450" cy="100" r="4" />
+    <circle cx="550" cy="100" r="4" />
+    <circle cx="650" cy="100" r="4" />
+    <circle cx="750" cy="100" r="4" />
+  </g>
+  
+  <!-- Current position indicator -->
+  <line x1="200" y1="0" x2="200" y2="200" stroke="#FFFFFF" stroke-width="2" />
+  
+  <!-- Region indicators for vocal parts -->
+  <rect x="100" y="60" width="100" height="80" fill="#EC4899" opacity="0.3" rx="4" ry="4" />
+  <rect x="300" y="60" width="150" height="80" fill="#EC4899" opacity="0.3" rx="4" ry="4" />
+  <rect x="550" y="60" width="120" height="80" fill="#EC4899" opacity="0.3" rx="4" ry="4" />
+</svg>
